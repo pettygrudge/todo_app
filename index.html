@@ -89,11 +89,16 @@
   </div>
 
 <script>
-  var todos = [
+  var saved = localStorage.getItem('todos');
+  var todos = saved ? JSON.parse(saved) : [
     { id: 1, text: '이 파일 열어보기', done: true },
     { id: 2, text: '할 일 하나 추가해보기', done: false }
   ];
-  var nextId = 3;
+  var nextId = todos.length ? Math.max.apply(null, todos.map(function (t) { return t.id; })) + 1 : 1;
+
+  function saveTodos() {
+    localStorage.setItem('todos', JSON.stringify(todos));
+  }
 
   var listEl = document.getElementById('todo-list');
   var inputEl = document.getElementById('todo-input');
@@ -113,6 +118,7 @@
       checkbox.checked = todo.done;
       checkbox.addEventListener('change', function () {
         todo.done = checkbox.checked;
+        saveTodos();
         render();
       });
 
@@ -125,6 +131,7 @@
       delBtn.textContent = '삭제';
       delBtn.addEventListener('click', function () {
         todos = todos.filter(function (t) { return t.id !== todo.id; });
+        saveTodos();
         render();
       });
 
@@ -142,6 +149,7 @@
     var text = inputEl.value.trim();
     if (!text) return;
     todos.push({ id: nextId++, text: text, done: false });
+    saveTodos();
     inputEl.value = '';
     render();
   }
