@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>나의 할 일 목록</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", sans-serif;
+    background: #F4F1EA;
+    color: #2C2C2A;
+    display: flex;
+    justify-content: center;
+    padding: 40px 16px;
+    margin: 0;
+  }
+  .card {
+    width: 100%;
+    max-width: 480px;
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid #E3E1D8;
+    padding: 24px;
+  }
+  h1 {
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0 0 20px;
+  }
+  .input-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  input[type="text"] {
+    flex: 1;
+    height: 40px;
+    padding: 0 12px;
+    border: 1px solid #D3D1C7;
+    border-radius: 8px;
+    font-size: 14px;
+  }
+  button {
+    height: 40px;
+    padding: 0 16px;
+    border: 1px solid #D3D1C7;
+    border-radius: 8px;
+    background: #2C2C2A;
+    color: #fff;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  button:hover { background: #444441; }
+  ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
+  li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 1px solid #E3E1D8;
+    border-radius: 8px;
+  }
+  li input[type="checkbox"] { width: 18px; height: 18px; flex-shrink: 0; }
+  li span { flex: 1; font-size: 14px; }
+  li span.done { color: #888780; text-decoration: line-through; }
+  li button.del {
+    background: transparent;
+    color: #993C1D;
+    border: none;
+    font-size: 13px;
+    cursor: pointer;
+    padding: 4px 8px;
+  }
+  #empty { text-align: center; color: #888780; font-size: 14px; padding: 24px 0; }
+  #counter { margin-top: 16px; font-size: 13px; color: #5F5E5A; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <h1>나의 할 일 목록</h1>
+    <div class="input-row">
+      <input id="todo-input" type="text" placeholder="예: 우유 사기">
+      <button id="add-btn">추가</button>
+    </div>
+    <div id="empty">아직 할 일이 없어요. 위에 입력해서 추가해보세요.</div>
+    <ul id="todo-list"></ul>
+    <div id="counter"></div>
+  </div>
+
+<script>
+  var todos = [
+    { id: 1, text: '이 파일 열어보기', done: true },
+    { id: 2, text: '할 일 하나 추가해보기', done: false }
+  ];
+  var nextId = 3;
+
+  var listEl = document.getElementById('todo-list');
+  var inputEl = document.getElementById('todo-input');
+  var addBtn = document.getElementById('add-btn');
+  var emptyEl = document.getElementById('empty');
+  var counterEl = document.getElementById('counter');
+
+  function render() {
+    listEl.innerHTML = '';
+    emptyEl.style.display = todos.length === 0 ? 'block' : 'none';
+
+    todos.forEach(function (todo) {
+      var li = document.createElement('li');
+
+      var checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.checked = todo.done;
+      checkbox.addEventListener('change', function () {
+        todo.done = checkbox.checked;
+        render();
+      });
+
+      var span = document.createElement('span');
+      span.textContent = todo.text;
+      if (todo.done) span.className = 'done';
+
+      var delBtn = document.createElement('button');
+      delBtn.className = 'del';
+      delBtn.textContent = '삭제';
+      delBtn.addEventListener('click', function () {
+        todos = todos.filter(function (t) { return t.id !== todo.id; });
+        render();
+      });
+
+      li.appendChild(checkbox);
+      li.appendChild(span);
+      li.appendChild(delBtn);
+      listEl.appendChild(li);
+    });
+
+    var doneCount = todos.filter(function (t) { return t.done; }).length;
+    counterEl.textContent = todos.length === 0 ? '' : (doneCount + ' / ' + todos.length + ' 완료');
+  }
+
+  function addTodo() {
+    var text = inputEl.value.trim();
+    if (!text) return;
+    todos.push({ id: nextId++, text: text, done: false });
+    inputEl.value = '';
+    render();
+  }
+
+  addBtn.addEventListener('click', addTodo);
+  inputEl.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') addTodo();
+  });
+
+  render();
+</script>
+</body>
+</html>
